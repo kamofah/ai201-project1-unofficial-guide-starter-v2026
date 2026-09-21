@@ -27,6 +27,8 @@
 
      Milestone 5. -->
 
+I selected the Campus Life corpus. This corpus contains information that students would need to navigate their college life on campus. There is a wide range of topics that these documents cover hence the system can answer a plethora of questions from housing, classes, cafeterias, health, and admin information and even the sentiment on some of these things.
+
 ## Chunking Strategy
 
 **Chunk size:**
@@ -41,6 +43,14 @@
      more than pretending you got it right first time.
 
      Milestone 3. -->
+
+My Chunking Strategy was to split the documents by sentences (so punctuations such as ., !, ?) and then put them into two chunks. In the case of a odd number of sentences the first chunk would get more sentences. The reason behind this chunking strategy was that:
+
+1. It cleanly chunks the documents without having to worry about sentence over lap
+2. If you observe the documents you see that most obvious questions are answered immediately at the start of the document while more unrelated
+   information gets put towards the end.
+
+If we look at the stats of this chunking strategy we see that the longest chunk is 300 characters and the smallest is 35 with the average chunk being 157. Which is close to the average of the smallest and largest chunk. This shows that this strategy was able to almost evenly chunk each document without losing info between chunks.
 
 ## Sample Chunks
 
@@ -138,8 +148,10 @@ This average ended up being 0.62 and because it was so close to the default thre
      Milestone 5. -->
 
 **1.**
+I designed the full chunking algorithm myself, including overlap handling, and asked Claude to implement it exactly as specified, with no assumptions of its own. It returned a working implementation that matched my design, including the overlap logic, without deviating from the spec.
 
 **2.**
+I used Claude and Warp to debug errors when running the retrieval command. The errors turned out to be caused by missing/outdated dependencies. Claude helped me identify which packages were missing or outdated, and after installing/upgrading them, the command ran successfully.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
