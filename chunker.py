@@ -22,10 +22,18 @@ to it, write down what you saw, and move on. That's a real observation about
 your pipeline, not giving up.
 """
 
+import math
+import re
 from dataclasses import dataclass
 
 import config
 from ingest import Document
+
+# A sentence ends at . ! or ? followed by whitespace. Not perfect — "Dr. Ruiz"
+# and "8 a.m." will fool it — but it matches how these posts are actually
+# written, and it keeps whole thoughts together far better than a character
+# count does.
+SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
 
 
 @dataclass
@@ -80,24 +88,52 @@ def fallback_split(
     return chunks
 
 
+def split_sentences(text: str) -> list[str]:
+    """Break one document into sentences, dropping anything that's only whitespace."""
+    return [s.strip() for s in SENTENCE_END.split(text) if s.strip()]
+
+
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
+    Split each document into sentences, then into two halves.
 
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
+    The documents here are short posts, and a fixed 800-character window cuts
+    them mid-sentence for no reason. This splits on sentence boundaries
+    instead, then puts the first half of the sentences in chunk 0 and the rest
+    in chunk 1, so each chunk is made of whole sentences.
 
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
+    With an odd number of sentences the first chunk gets the extra one: three
+    sentences come out as 2 + 1.
 
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    A document that is a single sentence stays a single chunk — there is
+    nothing to put in the second half.
     """
-    return fallback_split(documents)
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        sentences = split_sentences(doc.text)
+        if not sentences:
+            continue
+
+        # Round up, so the first chunk is the bigger one when the count is odd.
+        halfway = math.ceil(len(sentences) / 2)
+        halves = [sentences[:halfway], sentences[halfway:]]
+
+        index = 0
+        for half in halves:
+            if not half:
+                continue
+            chunks.append(
+                Chunk(
+                    text=" ".join(half),
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+            index += 1
+
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:
