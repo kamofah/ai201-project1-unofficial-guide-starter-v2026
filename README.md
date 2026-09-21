@@ -90,14 +90,19 @@ Asked about this a lot so writing it down. Moderate; the building is l-shaped an
      visible. Milestone 4. -->
 
 **Question:**
+Answer using only the information in the documents below. If they don't cover it, say you don't have enough information. Can I register for a course while I have an advisor hold?
 
 **Answer:**
 
 ```
-
+No, you need your adviser hold lifted before you can register. (Source: advising_registration.txt)
 ```
 
 **My relevance cutoff:**
+
+I kept my relevance cut off at 0.6 since a took the highest best distance from my questions (0.448)
+and the lowest best distance from the out of scope questions, averaged it since that would stop from to close towards one direction.
+This average ended up being 0.62 and because it was so close to the default threshold of 0.6, I opted to just keep it the same.
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -108,9 +113,18 @@ Asked about this a lot so writing it down. Moderate; the building is l-shaped an
 
      Milestone 4. -->
 
-| Question | In corpus? | Best distance |
-| -------- | ---------- | ------------- |
-|          |            |               |
+| Question                                                                           | In corpus? | Best distance |
+| ---------------------------------------------------------------------------------- | ---------- | ------------- |
+| "Within how many weeks can you drop a course?"                                     | Yes        | 0.301         |
+| "Within how many weeks can you add a course?"                                      | Yes        | 0.357         |
+| "Can I register for a course while I have an advisor hold?"                        | Yes        | 0.448         |
+| "For ECON 101, what is the format of the questions on the exams?"                  | Yes        | 0.366         |
+| "If I have an medical emergency at what times can I walk-in to the health center?" | Yes        | 0.276         |
+| "What is the capital of Mongolia?"                                                 | No         | 0.793         |
+| "How do I change the oil in a diesel engine?"                                      | No         | 0.849         |
+| "Who won the 1994 World Cup?"                                                      | No         | 0.847         |
+| "What is the recommended dosage of ibuprofen for a headache?"                      | No         | 0.805         |
+| "How do I write a for loop in Rust?"                                               | No         | 0.871         |
 
 ## How I Used AI
 
