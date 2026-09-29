@@ -153,6 +153,12 @@ I designed the full chunking algorithm myself, including overlap handling, and a
 **2.**
 I used Claude and Warp to debug errors when running the retrieval command. The errors turned out to be caused by missing/outdated dependencies. Claude helped me identify which packages were missing or outdated, and after installing/upgrading them, the command ran successfully.
 
+**3. (Unit 2)**
+I was confused on a the milestone instructions in the Unit so I asked Claude to clarify and explain these instructions to me in a much more clearer and concise way that would resonate better.
+
+**4. (Unit 2)**
+After meeting all criteria in the "before" run, I asked Claude which pipeline improvement would be most meaningful—hybrid search, a different chunking strategy, or something else. It suggested trying whole-document chunking since my diagnosis showed the corpus documents were already short and focused. I implemented the chunking change in `chunker.py`, ran the comparison, and found that both strategies performed equally well, revealing that chunking strategy doesn't significantly matter for this particular corpus.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -362,12 +368,12 @@ Source: health_center.txt
 
      Milestone 2. -->
 
-| #   | Criterion                                            | Verdict | How I decided                                                                                                                                                                                                                                                                                                                      |
-| --- | ---------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Retrieved chunks contain the answer (target: 4 of 5) | MET     | I read each answer in the "Real output" section and verified that all five questions (drop course, add course, advisor hold, ECON 101 exams, health center walk-ins) produced factually correct answers that directly addressed what was asked, and all contained information present in the retrieved chunks. |
-| 2   | Every answer names a source (target: 5 of 5)         | MET     | I read each of the 15 outputs (5 questions × 3 runs) and verified that every single one included an explicit source citation like "Source: admin_add_drop_deadline.txt" or "(Source: advising_registration.txt)".                                                                                                                  |
-| 3   | Gate stops out-of-corpus questions (target: 4 of 5)  | MET     | The gate section in the run log shows all 5 out-of-scope questions were refused (distances 0.787–0.871, all above the 0.6 cutoff), exceeding the 4 of 5 target.                                                                                                                                                                    |
-| 4   | At most 2 chunks per document (target: 4 of 5)       | MET     | I sampled 5 corpus files from the data/campus_life directory and checked how many chunks each produced—all stayed under 2 chunks due to the documents' short, focused format.                                                                                                                                                      |
+| #   | Criterion                                            | Verdict | How I decided                                                                                                                                                                                                                                                                                                                       |
+| --- | ---------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Retrieved chunks contain the answer (target: 4 of 5) | MET     | I read each answer in the "Real output" section and verified that all five questions (drop course, add course, advisor hold, ECON 101 exams, health center walk-ins) produced factually correct answers that directly addressed what was asked, and all contained information present in the retrieved chunks.                      |
+| 2   | Every answer names a source (target: 5 of 5)         | MET     | I read each of the 15 outputs (5 questions × 3 runs) and verified that every single one included an explicit source citation like "Source: admin_add_drop_deadline.txt" or "(Source: advising_registration.txt)".                                                                                                                   |
+| 3   | Gate stops out-of-corpus questions (target: 4 of 5)  | MET     | The gate section in the run log shows all 5 out-of-scope questions were refused (distances 0.787–0.871, all above the 0.6 cutoff), exceeding the 4 of 5 target.                                                                                                                                                                     |
+| 4   | At most 2 chunks per document (target: 4 of 5)       | MET     | I sampled 5 corpus files from the data/campus_life directory and checked how many chunks each produced—all stayed under 2 chunks due to the documents' short, focused format.                                                                                                                                                       |
 | 5   | Time questions include AM/PM (target: 5 of 5)        | MET     | Checked the health center question (the only time-related question) across all three runs - run 1 and run 3 output "8am" and run 2 output "8:00 AM", all explicitly including the meridiem indicator. Because this was the only time related question, I manually ran 4 additional time related questions to check for this target. |
 
 ## Diagnoses
@@ -392,7 +398,7 @@ Honestly, yes. All five criteria scored 5/5 when the targets ranged from 4/5 to 
 
 **What I changed:**
 
-Changed the chunking strategy in `chunker.py::split_documents` from sentence-based halving to **whole-document chunks**. 
+Changed the chunking strategy in `chunker.py::split_documents` from sentence-based halving to **whole-document chunks**.
 
 **Before:** Each document was split into sentences, then divided into two chunks (first half of sentences in chunk 0, second half in chunk 1).
 
@@ -403,6 +409,7 @@ The campus_life documents are short (average ~300-400 characters) and focused on
 **Why I picked it:**
 
 My diagnosis noted that all 5 criteria met their targets with the sentence-halving strategy, but Criterion 4 explicitly measured "at most 2 chunks per document." The baseline already achieved this (most documents became 1-2 chunks), which suggests the documents are naturally sized right for retrieval. Testing a whole-document strategy answers whether:
+
 - Keeping complete context together improves retrieval (no answer split across chunks)
 - Or splitting helps by reducing noise per chunk and improving granularity
 
@@ -430,6 +437,7 @@ The whole-document chunking strategy produced the same 5/5 scores across all cri
 **What this means:**
 
 For this specific corpus, **chunking strategy doesn't matter much** because the documents are already naturally sized right:
+
 - Average document length is ~300-400 characters (well under the typical 800-char chunk size)
 - Each document covers a single focused topic (one policy, one course detail, one facility's hours)
 - There's no long-form content that benefits from being split
@@ -444,17 +452,39 @@ The sentence-halving strategy was doing unnecessary work — splitting short doc
 
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
+Nothing is **missed** — all five criteria met their targets in both the "before" and "after" runs. But meeting a target doesn't mean there's nothing left to improve. Here's what's actually still limited:
 
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
+**1. The test questions are too easy**
 
-     Milestone 5. -->
+All five questions are single-document factual lookups ("how many weeks", "what format", "what times"). None require synthesis, inference, or handling ambiguity. The system gets 5/5 not because retrieval is sophisticated, but because the questions are straightforward keyword matches.
+
+**What I'd do:** Replace 3 of the 5 test questions with harder ones requiring multi-document synthesis:
+
+- "If I'm in ECON 101 and get sick during finals week, what are my options?" (requires health center policy + exam policy + grading policy)
+- "Can I drop a course and still keep my full meal plan?" (requires drop deadlines + enrollment status + meal plan rules)
+
+**Why I stopped:** Changing the test questions would invalidate the "before" run log, making it impossible to do a fair before/after comparison. Unit 2's structure requires keeping the same five questions throughout.
+
+**2. The corpus is artificially clean**
+
+Campus_life documents are short, focused, and consistently formatted. Real student questions often reference information spread across long policy PDFs, outdated websites, or informal sources. The current 5/5 scores don't prove the system would work on messier, more realistic data.
+
+**What I'd do:** Test on a second corpus with longer, less structured documents (e.g., full policy manuals, email archives, student forum posts) to see where retrieval actually breaks.
+
+**Why I stopped:** Unit 2 focuses on improving ONE pipeline on ONE corpus. Adding a second corpus is scope creep, and it would make it harder to diagnose which change mattered.
 
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
+**Criterion 5 (Time questions include AM/PM) — I'd rewrite it completely.**
 
-     Milestone 5. -->
+The criterion as written says "when I ask a question related to a specific time of day, the system should always produce an answer that contains the correct Ante Meridiem/Post Meridiem" with a target of 5 of 5.
+
+**The problem:** Only 1 of my 5 test questions involves time. I can't measure "5 of 5 time questions" when I only have 1 time question. The criterion is **unmeasurable** with the test set I wrote.
+
+**How I'd rewrite it:** Either:
+
+- Change it to "The 1 time-related question includes AM/PM in all 3 runs" (honest about what I'm actually testing), or
+- Write 5 time-related test questions so "5 of 5" means something, or
+- Replace it with a different criterion I can actually measure, like "No answer hallucinates information not in the retrieved chunks (5 of 5 questions)"
+
+**Why this one:** Criteria 1-4 were measurable and meaningful. Criterion 5 looked good on paper but couldn't be honestly evaluated without either changing my test questions or manually running extra tests outside the formal evaluation. A criterion you can't measure with your test set is a broken criterion, even if you technically "met" it.
