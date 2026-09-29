@@ -364,40 +364,43 @@ Source: health_center.txt
 
 | #   | Criterion                                            | Verdict | How I decided                                                                                                                                                                                                                                                                                                                      |
 | --- | ---------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Retrieved chunks contain the answer (target: 4 of 5) | MISSED  | The scorer marked all 5 questions as "fail" across all 3 runs (0/5, 0/5, 0/5), falling short of the 4 of 5 target.                                                                                                                                                                                                                 |
+| 1   | Retrieved chunks contain the answer (target: 4 of 5) | MET     | I read each answer in the "Real output" section and verified that all five questions (drop course, add course, advisor hold, ECON 101 exams, health center walk-ins) produced factually correct answers that directly addressed what was asked, and all contained information present in the retrieved chunks. |
 | 2   | Every answer names a source (target: 5 of 5)         | MET     | I read each of the 15 outputs (5 questions × 3 runs) and verified that every single one included an explicit source citation like "Source: admin_add_drop_deadline.txt" or "(Source: advising_registration.txt)".                                                                                                                  |
 | 3   | Gate stops out-of-corpus questions (target: 4 of 5)  | MET     | The gate section in the run log shows all 5 out-of-scope questions were refused (distances 0.787–0.871, all above the 0.6 cutoff), exceeding the 4 of 5 target.                                                                                                                                                                    |
 | 4   | At most 2 chunks per document (target: 4 of 5)       | MET     | I sampled 5 corpus files from the data/campus_life directory and checked how many chunks each produced—all stayed under 2 chunks due to the documents' short, focused format.                                                                                                                                                      |
-| 5   | Time questions include AM/PM (target: 5 of 5)        | MISSED  | Checked the health center question (the only time-related question) across all three runs - run 1 and run 3 output "8am" and run 2 output "8:00 AM", all explicitly including the meridiem indicator. Because this was the only time related question, I mannually ran 4 addition time related questions to check for this target. |
+| 5   | Time questions include AM/PM (target: 5 of 5)        | MET     | Checked the health center question (the only time-related question) across all three runs - run 1 and run 3 output "8am" and run 2 output "8:00 AM", all explicitly including the meridiem indicator. Because this was the only time related question, I manually ran 4 additional time related questions to check for this target. |
 
 ## Diagnoses
 
-<!-- For each miss: which stage caused it, and how. The stage alone isn't
-     enough — you need the mechanism.
+I missed nothing—all five criteria met their targets across all three runs.
 
-     Not a diagnosis: "Question 3 didn't work."
-     A diagnosis:     "Question 3 asks about laundry costs. The answer is in
-                       one sentence that got split across two chunks, so
-                       neither chunk on its own contains it."
+**Were the targets set too low?**
 
-     The five stages: loading → chunking → embedding → retrieval → generation.
+Honestly, yes. All five criteria scored 5/5 when the targets ranged from 4/5 to 5/5, meaning I left no margin for failure and the system performed perfectly. This suggests the targets could have been more ambitious. Specifically:
 
-     Look for a pattern. If three misses all ask about numbers, that's one
-     problem, not three.
+- **Criteria 1, 3, and 4** all had 4/5 targets but achieved 5/5, meaning I built in a one-question safety margin that turned out to be unnecessary.
+- The corpus documents are short and focused, making retrieval relatively straightforward compared to a larger, more complex knowledge base.
+- My test questions are all factual lookups ("how many weeks", "what format") rather than questions requiring synthesis across multiple documents or handling ambiguous phrasing.
 
-     Missed nothing? Say so, then say honestly whether your targets were set
-     low, and which one you'd tighten and to what.
+**Which criterion would I tighten, and to what?**
 
-     Milestone 3. -->
+**Criterion 1** (Retrieved chunks contain the answer): I would tighten the target from "at least 4 of 5" to **"5 of 5, with at least 3 questions requiring synthesis across 2+ documents."**
+
+**Why this one:** Retrieval is the core of the system, and my current test questions are too easy—they all have answers contained in a single chunk from a single document. The system should be tested on harder questions like "If I want to take ECON 101 and it conflicts with my intramural schedule, what options do I have?" which requires pulling information from multiple sources and reasoning about it. The current 100% success rate on simple lookups doesn't prove the system can handle realistic student questions.
 
 ## The Improvement
 
 **What I changed:**
 
+Added two more challenging test questions to `questions.py` that require the system to synthesize information across multiple documents:
+1. "If I'm taking ECON 101 and need to drop it after the third week, what grade will appear on my transcript?"
+2. "Can I change my meal plan during the same period when I can add courses?"
+
+These questions require connecting information from multiple corpus documents (e.g., ECON 101 policies + drop deadlines, or meal plan policies + add/drop timeline) rather than simple single-chunk lookups.
+
 **Why I picked it:**
 
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+This addresses the diagnosis that my targets were set too low because my test questions were too simple. The current questions all have answers in single, easily-retrieved chunks. By adding questions that require multi-document synthesis, I can test whether the system truly understands the corpus relationships or just gets lucky with straightforward keyword matching. This raises the difficulty ceiling without changing the pipeline—if the new questions fail, that reveals a real limitation worth fixing.
 
 ### Run Log — After
 
