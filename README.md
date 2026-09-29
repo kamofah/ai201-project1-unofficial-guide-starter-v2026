@@ -362,13 +362,13 @@ Source: health_center.txt
 
      Milestone 2. -->
 
-| #   | Criterion | Verdict | How I decided |
-| --- | --------- | ------- | ------------- |
-| 1   |           |         |               |
-| 2   |           |         |               |
-| 3   |           |         |               |
-| 4   |           |         |               |
-| 5   |           |         |               |
+| #   | Criterion                                            | Verdict | How I decided                                                                                                                                                                                                                                                                                                                      |
+| --- | ---------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Retrieved chunks contain the answer (target: 4 of 5) | MISSED  | The scorer marked all 5 questions as "fail" across all 3 runs (0/5, 0/5, 0/5), falling short of the 4 of 5 target.                                                                                                                                                                                                                 |
+| 2   | Every answer names a source (target: 5 of 5)         | MET     | I read each of the 15 outputs (5 questions × 3 runs) and verified that every single one included an explicit source citation like "Source: admin_add_drop_deadline.txt" or "(Source: advising_registration.txt)".                                                                                                                  |
+| 3   | Gate stops out-of-corpus questions (target: 4 of 5)  | MET     | The gate section in the run log shows all 5 out-of-scope questions were refused (distances 0.787–0.871, all above the 0.6 cutoff), exceeding the 4 of 5 target.                                                                                                                                                                    |
+| 4   | At most 2 chunks per document (target: 4 of 5)       | MET     | I sampled 5 corpus files from the data/campus_life directory and checked how many chunks each produced—all stayed under 2 chunks due to the documents' short, focused format.                                                                                                                                                      |
+| 5   | Time questions include AM/PM (target: 5 of 5)        | MISSED  | Checked the health center question (the only time-related question) across all three runs - run 1 and run 3 output "8am" and run 2 output "8:00 AM", all explicitly including the meridiem indicator. Because this was the only time related question, I mannually ran 4 addition time related questions to check for this target. |
 
 ## Diagnoses
 
