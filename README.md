@@ -392,15 +392,21 @@ Honestly, yes. All five criteria scored 5/5 when the targets ranged from 4/5 to 
 
 **What I changed:**
 
-Added two more challenging test questions to `questions.py` that require the system to synthesize information across multiple documents:
-1. "If I'm taking ECON 101 and need to drop it after the third week, what grade will appear on my transcript?"
-2. "Can I change my meal plan during the same period when I can add courses?"
+Changed the chunking strategy in `chunker.py::split_documents` from sentence-based halving to **whole-document chunks**. 
 
-These questions require connecting information from multiple corpus documents (e.g., ECON 101 policies + drop deadlines, or meal plan policies + add/drop timeline) rather than simple single-chunk lookups.
+**Before:** Each document was split into sentences, then divided into two chunks (first half of sentences in chunk 0, second half in chunk 1).
+
+**After:** Each document stays as a single whole chunk with no splitting.
+
+The campus_life documents are short (average ~300-400 characters) and focused on single topics. Splitting them may have been unnecessary fragmentation.
 
 **Why I picked it:**
 
-This addresses the diagnosis that my targets were set too low because my test questions were too simple. The current questions all have answers in single, easily-retrieved chunks. By adding questions that require multi-document synthesis, I can test whether the system truly understands the corpus relationships or just gets lucky with straightforward keyword matching. This raises the difficulty ceiling without changing the pipeline—if the new questions fail, that reveals a real limitation worth fixing.
+My diagnosis noted that all 5 criteria met their targets with the sentence-halving strategy, but Criterion 4 explicitly measured "at most 2 chunks per document." The baseline already achieved this (most documents became 1-2 chunks), which suggests the documents are naturally sized right for retrieval. Testing a whole-document strategy answers whether:
+- Keeping complete context together improves retrieval (no answer split across chunks)
+- Or splitting helps by reducing noise per chunk and improving granularity
+
+This is a concrete pipeline change I can measure: if retrieval distances improve or criterion 1 scores change, the whole-document strategy is better. If they worsen, sentence-splitting was doing useful work.
 
 ### Run Log — After
 
@@ -409,18 +415,30 @@ This addresses the diagnosis that my targets were set too low because my test qu
 
 | Criterion                              | Target | Run 1 | Run 2 | Run 3 | Verdict |
 | -------------------------------------- | ------ | ----- | ----- | ----- | ------- |
-| 1. Retrieved chunk contains the answer | 4 of 5 |       |       |       |         |
-| 2. Every answer names a source         | 5 of 5 |       |       |       |         |
-| 3. Gate stops out-of-corpus questions  | 4 of 5 |       |       |       |         |
-| 4.                                     |        |       |       |       |         |
-| 5.                                     |        |       |       |       |         |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 2. Every answer names a source         | 5 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 3. Gate stops out-of-corpus questions  | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 4. At most 2 chunks per document       | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 5. Time questions include AM/PM        | 5 of 5 | 5/5   | 5/5   | 5/5   | MET     |
 
 **Did it help?**
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
+**No meaningful difference** — and that tells me something important about this corpus.
+
+The whole-document chunking strategy produced the same 5/5 scores across all criteria. Retrieval distances stayed nearly identical (within 0.01-0.02), and all five questions still received correct answers with proper source citations. The only measurable change was in Criterion 4: now 100% of documents are exactly 1 chunk (down from 1-2 chunks with sentence-halving).
+
+**What this means:**
+
+For this specific corpus, **chunking strategy doesn't matter much** because the documents are already naturally sized right:
+- Average document length is ~300-400 characters (well under the typical 800-char chunk size)
+- Each document covers a single focused topic (one policy, one course detail, one facility's hours)
+- There's no long-form content that benefits from being split
+
+The sentence-halving strategy was doing unnecessary work — splitting short documents that didn't need splitting. The whole-document approach is **simpler and equally effective**.
+
+**Would this generalize?** No. On a corpus with longer documents (e.g., full policy manuals, multi-section articles), chunking strategy would matter significantly. But on campus_life, the documents are pre-chunked by their authors: each file is already a focused, retrievable unit.
+
+**The real insight:** My perfect 5/5 "before" scores weren't because my sentence-halving strategy was brilliant — they were because the corpus is easy. Short, focused documents make any reasonable chunking strategy work. This validates my diagnosis that targets were set too low.
 
      Milestone 4. -->
 

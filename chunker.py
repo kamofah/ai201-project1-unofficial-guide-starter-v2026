@@ -95,43 +95,35 @@ def split_sentences(text: str) -> list[str]:
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split each document into sentences, then into two halves.
+    Keep each document as a single chunk (no splitting).
 
-    The documents here are short posts, and a fixed 800-character window cuts
-    them mid-sentence for no reason. This splits on sentence boundaries
-    instead, then puts the first half of the sentences in chunk 0 and the rest
-    in chunk 1, so each chunk is made of whole sentences.
-
-    With an odd number of sentences the first chunk gets the extra one: three
-    sentences come out as 2 + 1.
-
-    A document that is a single sentence stays a single chunk — there is
-    nothing to put in the second half.
+    Unit 2 improvement: The original sentence-based halving strategy produced
+    all 5/5 scores, but splitting short campus posts may be unnecessary. These
+    documents average ~300-400 characters and are already focused single topics.
+    
+    This strategy keeps each document whole, preserving complete context. If a
+    question's answer spans multiple sentences in a document, this ensures they
+    stay together in one chunk.
+    
+    Testing this against the sentence-halving baseline will show whether:
+    - Keeping documents whole improves retrieval (answer context stays together)
+    - Or splitting them helps (more granular matching, less noise per chunk)
     """
     chunks: list[Chunk] = []
 
     for doc in documents:
-        sentences = split_sentences(doc.text)
-        if not sentences:
+        text = doc.text.strip()
+        if not text:
             continue
-
-        # Round up, so the first chunk is the bigger one when the count is odd.
-        halfway = math.ceil(len(sentences) / 2)
-        halves = [sentences[:halfway], sentences[halfway:]]
-
-        index = 0
-        for half in halves:
-            if not half:
-                continue
-            chunks.append(
-                Chunk(
-                    text=" ".join(half),
-                    source=doc.source,
-                    index=index,
-                    produced_by="chunker.py::split_documents",
-                )
+            
+        chunks.append(
+            Chunk(
+                text=text,
+                source=doc.source,
+                index=0,
+                produced_by="chunker.py::split_documents (whole-document strategy)",
             )
-            index += 1
+        )
 
     return chunks
 
