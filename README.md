@@ -180,15 +180,176 @@ I used Claude and Warp to debug errors when running the retrieval command. The e
 
 | Criterion                              | Target | Run 1 | Run 2 | Run 3 | Verdict |
 | -------------------------------------- | ------ | ----- | ----- | ----- | ------- |
-| 1. Retrieved chunk contains the answer | 4 of 5 |       |       |       |         |
-| 2. Every answer names a source         | 5 of 5 |       |       |       |         |
-| 3. Gate stops out-of-corpus questions  | 4 of 5 |       |       |       |         |
-| 4.                                     |        |       |       |       |         |
-| 5.                                     |        |       |       |       |         |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 2. Every answer names a source         | 5 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 3. Gate stops out-of-corpus questions  | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 4. At most 2 chunks per document       | 4 of 5 | 5/5   | 5/5   | 5/5   | MET     |
+| 5. Time questions include AM/PM        | 5 of 5 | 5/5   | 5/5   | 5/5   | MET     |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+     ## Real output
+
+This is what the system actually produced. Paste the relevant parts
+into your README underneath the table — the rubric asks for real
+output as text, not a description of it.
+
+### Within how many weeks can you drop a course? — run 1
+
+- Best distance: 0.3014 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_grade_appeals.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160.txt
+
+```
+You can drop a course through the end of week six. (Source: admin_add_drop_deadline.txt)
+```
+
+### Within how many weeks can you drop a course? — run 2
+
+- Best distance: 0.3014 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_grade_appeals.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160.txt
+
+```
+You can drop a course through the end of week six. (Source: admin_add_drop_deadline.txt)
+```
+
+### Within how many weeks can you drop a course? — run 3
+
+- Best distance: 0.3014 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_grade_appeals.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160.txt
+
+```
+You can drop a course through the end of week six.
+
+Source: admin_add_drop_deadline.txt
+```
+
+### Within how many weeks can you add a course? — run 1
+
+- Best distance: 0.3574 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160_workload.txt, course_cs_340.txt
+
+```
+You can add a course through the end of the second week.
+
+Source: admin_add_drop_deadline.txt
+```
+
+### Within how many weeks can you add a course? — run 2
+
+- Best distance: 0.3574 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160_workload.txt, course_cs_340.txt
+
+```
+You can add a course through the end of the second week.
+
+Source: admin_add_drop_deadline.txt
+```
+
+### Within how many weeks can you add a course? — run 3
+
+- Best distance: 0.3574 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_pass_fail_option.txt, advising_registration.txt, course_biol_160_workload.txt, course_cs_340.txt
+
+```
+You can add a course through the end of the second week.
+
+Source: admin_add_drop_deadline.txt
+```
+
+### Can I register for a course while I have an advisor hold? — run 1
+
+- Best distance: 0.4478 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_declaring_a_major.txt, admin_meal_plan_changes.txt, advising_registration.txt
+
+```
+No, you need your adviser hold lifted before you can register.
+
+Source: advising_registration.txt
+```
+
+### Can I register for a course while I have an advisor hold? — run 2
+
+- Best distance: 0.4478 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_declaring_a_major.txt, admin_meal_plan_changes.txt, advising_registration.txt
+
+```
+No, you need your adviser hold lifted before you can register.
+
+Source: advising_registration.txt
+```
+
+### Can I register for a course while I have an advisor hold? — run 3
+
+- Best distance: 0.4478 (passed the gate)
+- Sources retrieved: admin_add_drop_deadline.txt, admin_declaring_a_major.txt, admin_meal_plan_changes.txt, advising_registration.txt
+
+```
+No, you need your adviser hold lifted before you can register.
+
+Source: advising_registration.txt
+```
+
+### For ECON 101, what is the format of the questions on the exams? — run 1
+
+- Best distance: 0.3657 (passed the gate)
+- Sources retrieved: course_cs_210_exams.txt, course_cs_340_exams.txt, course_econ_101.txt, course_econ_101_exams.txt, course_engl_205.txt
+
+```
+For ECON 101, the questions on all of the exams (two midterms and a final) are multiple choice.
+
+Sources: `course_econ_101.txt` and `course_econ_101_exams.txt`
+```
+
+### For ECON 101, what is the format of the questions on the exams? — run 2
+
+- Best distance: 0.3657 (passed the gate)
+- Sources retrieved: course_cs_210_exams.txt, course_cs_340_exams.txt, course_econ_101.txt, course_econ_101_exams.txt, course_engl_205.txt
+
+```
+For ECON 101, all the exam questions are multiple choice (source: `course_econ_101.txt` and `course_econ_101_exams.txt`).
+```
+
+### For ECON 101, what is the format of the questions on the exams? — run 3
+
+- Best distance: 0.3657 (passed the gate)
+- Sources retrieved: course_cs_210_exams.txt, course_cs_340_exams.txt, course_econ_101.txt, course_econ_101_exams.txt, course_engl_205.txt
+
+```
+For ECON 101, the questions on the exams are all multiple choice (Source: `course_econ_101.txt` and `course_econ_101_exams.txt`).
+```
+
+### If I have an medical emergency at what times can I walk-in to the health center? — run 1
+
+- Best distance: 0.2759 (passed the gate)
+- Sources retrieved: dining_halden_hall.txt, dining_halden_hall_followup.txt, dining_pellew_dining_hall.txt, health_center.txt, study_library_hours.txt
+
+```
+If something is urgent, you should go at 8am and wait.
+
+Source: health_center.txt
+```
+
+### If I have an medical emergency at what times can I walk-in to the health center? — run 2
+
+- Best distance: 0.2759 (passed the gate)
+- Sources retrieved: dining_halden_hall.txt, dining_halden_hall_followup.txt, dining_pellew_dining_hall.txt, health_center.txt, study_library_hours.txt
+
+```
+If something is urgent, you should go at 8:00 AM and wait (health_center.txt).
+```
+
+### If I have an medical emergency at what times can I walk-in to the health center? — run 3
+
+- Best distance: 0.2759 (passed the gate)
+- Sources retrieved: dining_halden_hall.txt, dining_halden_hall_followup.txt, dining_pellew_dining_hall.txt, health_center.txt, study_library_hours.txt
+
+```
+If something is urgent, you should go at 8am and wait.
+
+Source: health_center.txt
+```
 
 ## Verdicts
 
